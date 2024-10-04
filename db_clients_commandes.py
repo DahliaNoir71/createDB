@@ -42,10 +42,6 @@ SQL_INSERT_FROM_CSV = {
     """
 }
 
-clients_inserted = False
-commandes_inserted = False
-
-
 def get_db_connection(db_name):
     connection = sqlite3.connect(db_name)
     return connection
@@ -107,7 +103,7 @@ def insert_from_csv(entity_name, db_connection):
         case "commandes":
             insert_commandes(table_csv, db_connection)
 
-def get_clients_with_consent(db_connection):
+def print_clients_with_consent(db_connection):
     cursor = db_connection.cursor()
     query = """
     SELECT 
@@ -124,7 +120,7 @@ def get_clients_with_consent(db_connection):
         print(client)
     print("Nb clients: ", len(clients))
 
-def get_client_commandes(client_ID, db_connection):
+def print_client_commandes(client_ID, db_connection):
     cursor = db_connection.cursor()
     print("COMMANDES pour le client avec l'ID " + str(client_ID))
     query_commandes = "SELECT * FROM Commandes WHERE client_ID = " + str(client_ID)
@@ -149,6 +145,39 @@ def get_random_client_ID(db_connection):
     client_id = cursor.fetchone()[0]
     return client_id
 
+def print_montant_commandes(client_id, db_connection):
+    cursor = db_connection.cursor()
+    query = "SELECT SUM(montant) FROM Commandes WHERE client_ID = " + str(client_id)
+    cursor.execute(query)
+    montant_total = cursor.fetchone()[0]
+    print("Montant total commandes : " + str(montant_total))
+
+def print_clients_montant_commandes_over(montant, db_connection):
+    cursor = db_connection.cursor()
+    query = "SELECT * FROM Clients as cl INNER JOIN Commandes as cm ON cl.ID = cm.client_ID WHERE cm.montant > " + str(montant)
+    cursor.execute(query)
+    clients = cursor.fetchall()
+    print("Clients ayant des commandes pour un montant supérieur à " + str(montant))
+    for client in clients:
+        print(client)
+    print("Nb clients: ", len(clients))
+
+def print_clients_date_commandes_over(date, db_connection):
+    cursor = db_connection.cursor()
+    query = "SELECT * FROM Clients as cl INNER JOIN Commandes as cm ON cl.ID = cm.client_ID WHERE cm.date > " + str(date)
+    cursor.execute(query)
+    clients = cursor.fetchall()
+    print("Clients ayant des commandes passée après le " + str(date))
+    for client in clients:
+        print(client)
+    print("Nb clients: ", len(clients))
+
+def deleteTables(db_connection):
+    cursor = db_connection.cursor()
+    cursor.execute("DROP TABLE IF EXISTS Clients")
+    cursor.execute("DROP TABLE IF EXISTS Commandes")
+    db_connection.commit()
+
 # Connection DB
 db_connection = get_db_connection(DB_NAME)
 # Création des tables
@@ -158,11 +187,20 @@ insert_from_csv("clients", db_connection)
 # Insertion des commandes
 insert_from_csv("commandes", db_connection)
 # Récupération des clients clients ayant consenti à recevoir des communications marketing
-get_clients_with_consent(db_connection)
+print_clients_with_consent(db_connection)
 # Récupération de l'ID d'un client aléatoire
 rnd_client_ID = get_random_client_ID(db_connection)
 # récupération des commandes d'un client
-get_client_commandes(rnd_client_ID, db_connection)
+print_client_commandes(rnd_client_ID, db_connection)
+# récupération du montant total des commandes du client avec l'ID = 61
+print_montant_commandes(61, db_connection)
+# récupération des clients avec des commandes dont le montant est supérieur à 100
+print_clients_montant_commandes_over(100, db_connection)
+# récupération des clients avec des commandes passées après le 01/01/2023
+print_clients_date_commandes_over("2023-01-01", db_connection)
+# Suppression des tables
+deleteTables(db_connection)
+
 
 
 
