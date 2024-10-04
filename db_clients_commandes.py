@@ -9,10 +9,10 @@ SQL_CREATE_TABLES = {
             ID INTEGER PRIMARY KEY AUTOINCREMENT,
             nom TEXT NOT NULL,
             prenom TEXT NOT NULL,
-            email TEXT NOT NULL,
-            tel VARCHAR(9) NOT NULL,
+            email TEXT NOT NULL UNIQUE,
+            tel VARCHAR(9),
             ddn DATE,
-            adresse TEXT NOT NULL,
+            adresse TEXT,
             marketing_consent TINYINT(1) NOT NULL
         )
     """,
@@ -253,12 +253,3 @@ print_clients_montant_commandes_over(100, db_connection)
 print_clients_date_commandes_over("2023-01-01", db_connection)
 # Suppression des tables
 deleteTables(db_connection)
-
-
-
-
-
-
-
-
-
