@@ -1,6 +1,7 @@
 import sqlite3
 import csv
 
+# Base de données à créer
 DB_NAME = "db_clients_commandes.db"
 
 SQL_CREATE_TABLES = {
