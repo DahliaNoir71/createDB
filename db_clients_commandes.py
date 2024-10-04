@@ -1,5 +1,4 @@
 import sqlite3
-import pandas as pd
 
 DB_NAME = "db_clients_commandes.db"
 
