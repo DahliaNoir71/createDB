@@ -76,7 +76,6 @@ def insert_clients(table_csv, db_connection):
 
 
 def insert_commandes(table_csv, db_connection):
-
         cursor = db_connection.cursor()
         for row in table_csv:
             commande = {
@@ -119,7 +118,7 @@ def get_clients_with_consent(db_connection):
         marketing_consent = 1
     """
     cursor.execute(query)
-    print("Clients clients ayant consenti à recevoir des communications marketing")
+    print("Clients ayant consenti à recevoir des communications marketing")
     clients = cursor.fetchall()
     for client in clients:
         print(client)
@@ -127,14 +126,28 @@ def get_clients_with_consent(db_connection):
 
 def get_client_commandes(client_ID, db_connection):
     cursor = db_connection.cursor()
+    print("COMMANDES pour le client avec l'ID " + str(client_ID))
+    query_commandes = "SELECT * FROM Commandes WHERE client_ID = " + str(client_ID)
+    cursor.execute(query_commandes)
+    commandes = cursor.fetchall()
+    for commande in commandes:
+        print(commande)
+    print("Nb commandes: ", len(commandes))
+
+def get_random_client_ID(db_connection):
+    cursor = db_connection.cursor()
     query = """
         SELECT 
-            * 
+            ID 
         FROM 
-            Commandes 
-        WHERE 
-            client_ID = :client_ID
-        """
+            Clients 
+        ORDER BY 
+            RANDOM() 
+        LIMIT 1
+    """
+    cursor.execute(query)
+    client_id = cursor.fetchone()[0]
+    return client_id
 
 # Connection DB
 db_connection = get_db_connection(DB_NAME)
@@ -146,6 +159,13 @@ insert_from_csv("clients", db_connection)
 insert_from_csv("commandes", db_connection)
 # Récupération des clients clients ayant consenti à recevoir des communications marketing
 get_clients_with_consent(db_connection)
+# Récupération de l'ID d'un client aléatoire
+rnd_client_ID = get_random_client_ID(db_connection)
+# récupération des commandes d'un client
+get_client_commandes(rnd_client_ID, db_connection)
+
+
+
 
 
 
